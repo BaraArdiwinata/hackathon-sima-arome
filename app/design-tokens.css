@@ -1,0 +1,252 @@
+/* ═══════════════════════════════════════════════════════════
+   Enterprise Design System — Design Tokens
+   ═══════════════════════════════════════════════════════════
+   A refined, enterprise-grade token palette.
+   - Warm orange primary for approachable authority
+   - Cream-tinted warm grays for a natural aesthetic
+   - Measured spacing and subtle shadows for visual clarity
+   ═══════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Primary (Deep Forest Green #1E5B3A) ──────────────── */
+  --ds-primary-100: #ebf7f0;
+  --ds-primary-200: #d6ede0;
+  --ds-primary-300: #aadbbf;
+  --ds-primary-400: #7bc799;
+  --ds-primary-500: #53b679;
+  --ds-primary: #1e5b3a;
+  --ds-primary-600: #1a4f32;
+  --ds-primary-700: #143c26;
+  --ds-primary-800: #0f2c1c;
+  --ds-primary-900: #091c12;
+  --ds-primary-950: #050d08;
+
+  /* ── Secondary/Accent (Fresh Olive, Lime, Amber) ─────── */
+  --ds-secondary-100: #f4fbe9;
+  --ds-secondary-200: #e6f7d0;
+  --ds-secondary-300: #89c84a; /* Lime Green */
+  --ds-secondary-400: #b2e570;
+  --ds-secondary: #65b32e;     /* Fresh Olive */
+  --ds-secondary-600: #569022;
+  --ds-secondary-700: #c98a2e; /* Rich Amber */
+  --ds-secondary-800: #7b5016;
+  --ds-secondary-900: #54350d;
+  --ds-secondary-950: #331d04;
+
+  /* Alias to make the template's '--ds-accent' compatible */
+  --ds-accent-100: var(--ds-secondary-100);
+  --ds-accent-200: var(--ds-secondary-200);
+  --ds-accent-300: var(--ds-secondary-300);
+  --ds-accent-400: var(--ds-secondary-400);
+  --ds-accent: var(--ds-secondary);
+  --ds-accent-600: var(--ds-secondary-600);
+  --ds-accent-700: var(--ds-secondary-700);
+  --ds-accent-800: var(--ds-secondary-800);
+  --ds-accent-900: var(--ds-secondary-900);
+  --ds-accent-950: var(--ds-secondary-950);
+
+  /* ── Success (Green) ───────────────────────────────── */
+  --ds-success-100: #ecfdf5;
+  --ds-success-200: #dff3e6;
+  --ds-success-300: #a7f3d0;
+  --ds-success-400: #6ee7b7;
+  --ds-success-500: #34d399;
+  --ds-success: #1b7a3f;
+  --ds-success-700: #15803d;
+  --ds-success-800: #166534;
+  --ds-success-900: #14532d;
+  --ds-success-950: #052e16;
+
+  /* ── Info (Sky) ────────────────────────────────────────── */
+  --ds-info-100: #f0f9ff;
+  --ds-info-200: #e0f2fe;
+  --ds-info-300: #bae6fd;
+  --ds-info-400: #7dd3fc;
+  --ds-info-500: #38bdf8;
+  --ds-info: #0ea5e9;
+  --ds-info-700: #0284c7;
+  --ds-info-800: #0369a1;
+  --ds-info-900: #075985;
+  --ds-info-950: #082f49;
+
+  /* ── Warning (Amber) ───────────────────────────────────── */
+  --ds-warning-100: #fffbeb;
+  --ds-warning-200: #fff1c2;
+  --ds-warning-300: #fde68a;
+  --ds-warning-400: #fcd34d;
+  --ds-warning-500: #fbbf24;
+  --ds-warning: #a46b00;
+  --ds-warning-700: #92400e;
+  --ds-warning-800: #78350f;
+  --ds-warning-900: #5c2a0f;
+  --ds-warning-950: #451a03;
+
+  /* ── Danger (Red) ──────────────────────────────────────── */
+  --ds-danger-100: #fef2f2;
+  --ds-danger-200: #fdecea;
+  --ds-danger-300: #fecaca;
+  --ds-danger-400: #fca5a5;
+  --ds-danger-500: #f87171;
+  --ds-danger: #b4232a;
+  --ds-danger-700: #991b1b;
+  --ds-danger-800: #7f1d1d;
+  --ds-danger-900: #6b1515;
+  --ds-danger-950: #450a0a;
+
+  /* ── Gray (Warm, cream-tinted) ─────────────────────── */
+  --ds-gray-100: #ffffff; /* Clean Base */
+  --ds-gray-200: #f9f8f4; /* Warm Alabaster */
+  --ds-gray-300: #e7e7e7; /* Border light */
+  --ds-gray-400: #cfcfcf; /* Border muted */
+  --ds-gray-500: #7a7a7a; /* Text secondary/muted */
+  --ds-gray-600: #524a3f;
+  --ds-gray-700: #3a342c;
+  --ds-gray-800: #2d2d2d; /* Primary dark gray text */
+  --ds-gray-900: #2d2d2d; /* Text primary */
+  --ds-gray-950: #191612;
+
+  /* ── Spacing (4px base grid) ───────────────────────────── */
+  --ds-spacing-1: 0.25rem;
+  --ds-spacing-2: 0.5rem;
+  --ds-spacing-3: 0.75rem;
+  --ds-spacing-4: 1rem;
+  --ds-spacing-5: 1.25rem;
+  --ds-spacing-6: 1.5rem;
+  --ds-spacing-8: 2rem;
+  --ds-spacing-10: 2.5rem;
+  --ds-spacing-12: 3rem;
+  --ds-spacing-16: 4rem;
+
+  /* ── Typography (Sima Arôme Font Configuration) ────────── */
+  --ds-font-family: var(--font-inter), sans-serif;
+  --ds-font-sans: var(--font-inter), sans-serif;
+  --ds-font-display: var(--font-cormorant), Georgia, serif;
+  --ds-font-subheader: var(--font-montserrat), sans-serif;
+  --ds-font-mono: "JetBrains Mono", "SF Mono", SFMono-Regular, Consolas, monospace;
+  
+  --ds-font-size-xs: 0.75rem;
+  --ds-font-size-sm: 0.85rem;
+  --ds-font-size-base: 0.9rem;
+  --ds-body-font-size: 0.9rem;
+  --ds-font-size-lg: 1rem;
+  --ds-font-size-xl: 1.1rem;
+  --ds-font-size-2xl: 1.25rem;
+  --ds-font-size-3xl: 1.5rem;
+  --ds-font-size-4xl: 1.875rem;
+
+  --ds-font-weight-normal: 400;
+  --ds-font-weight-base: 400;
+  --ds-font-weight-medium: 500;
+  --ds-font-weight-semibold: 600;
+  --ds-font-weight-bold: 700;
+
+  --ds-line-height-tight: 1.25;
+  --ds-line-height-normal: 1.5;
+  --ds-line-height-base: 1.5;
+  --ds-line-height-relaxed: 1.625;
+
+  /* ── Radius ────────────────────────────────────────────── */
+  --ds-radius-sm: 4px;
+  --ds-radius: 8px;
+  --ds-radius-md: 12px;
+  --ds-radius-lg: 16px;
+  --ds-radius-xl: 20px;
+
+  /* ── Shadows (warm-tinted) ─────────────────────────────── */
+  --ds-shadow-sm: 0 1px 2px 0 rgba(45, 45, 45, 0.04);
+  --ds-shadow: 0 2px 4px 0 rgba(45, 45, 45, 0.05);
+  --ds-shadow-md: 0 4px 6px -1px rgba(45, 45, 45, 0.07), 0 2px 4px -2px rgba(45, 45, 45, 0.05);
+  --ds-shadow-lg: 0 12px 28px rgba(45, 45, 45, 0.05);
+  --ds-shadow-xl: 0 20px 40px rgba(45, 45, 45, 0.08);
+
+  /* ── Base ───────────────────────────────────────────────── */
+  --ds-body-bg: #f9f8f4; /* Warm Alabaster */
+  --ds-body-color: var(--ds-gray-900); /* #2D2D2D */
+  --ds-body-color-rgb: 45, 45, 45;
+  --ds-primary-rgb: 30, 91, 58; /* #1E5B3A */
+
+  /* ── Borders ───────────────────────────────────────────── */
+  --ds-border-color: var(--ds-gray-400); /* #CFCFCF */
+  --ds-border-color-subtle: var(--ds-gray-300); /* #E7E7E7 */
+
+  /* ── States ────────────────────────────────────────────── */
+  --ds-hover-opacity: 0.85;
+  --ds-focus-ring: 0 0 0 3px rgba(30, 91, 58, 0.18);
+  --ds-focus-ring-color: rgba(30, 91, 58, 0.18);
+  --ds-disabled-opacity: 0.5;
+
+  /* ── Transitions ───────────────────────────────────────── */
+  --ds-transition-fast: 150ms ease;
+  --ds-transition-normal: 200ms ease;
+}
+
+/* ── Dark Mode ───────────────────────────────────────────── */
+[data-mantine-color-scheme="dark"] {
+  --ds-primary: #53b679; /* Brighter Forest Green for dark mode contrast */
+  --ds-primary-100: #091c12;
+  --ds-primary-200: #0f2c1c;
+  --ds-primary-300: #143c26;
+  --ds-primary-400: #1a4f32;
+  --ds-primary-600: #7bc799;
+  --ds-primary-700: #aadbbf;
+  --ds-primary-800: #d6ede0;
+  --ds-primary-900: #ebf7f0;
+  --ds-primary-950: #ffffff;
+
+  --ds-secondary-100: #331d04;
+  --ds-secondary-200: #54350d;
+  --ds-secondary-300: #7b5016;
+  --ds-secondary-400: #c98a2e;
+  --ds-secondary: #89c84a;     /* Brighter Lime for dark mode contrast */
+  --ds-secondary-600: #b2e570;
+  --ds-secondary-700: #89c84a;
+  --ds-secondary-800: #e6f7d0;
+  --ds-secondary-900: #f4fbe9;
+  --ds-secondary-950: #ffffff;
+
+  --ds-accent-100: var(--ds-secondary-100);
+  --ds-accent-200: var(--ds-secondary-200);
+  --ds-accent-300: var(--ds-secondary-300);
+  --ds-accent-400: var(--ds-secondary-400);
+  --ds-accent: var(--ds-secondary);
+  --ds-accent-600: var(--ds-secondary-600);
+  --ds-accent-700: var(--ds-secondary-700);
+  --ds-accent-800: var(--ds-secondary-800);
+  --ds-accent-900: var(--ds-secondary-900);
+  --ds-accent-950: var(--ds-secondary-950);
+
+  --ds-success: #34d399;
+  --ds-info: #38bdf8;
+  --ds-warning: #fbbf24;
+  --ds-danger: #f87171;
+
+  --ds-gray-100: #191612;
+  --ds-gray-200: #252118;
+  --ds-gray-300: #3a342c;
+  --ds-gray-400: #524a3f;
+  --ds-gray-500: #a59e90;
+  --ds-gray-600: #cfcfcf;
+  --ds-gray-700: #e7e7e7;
+  --ds-gray-800: #f9f8f4;
+  --ds-gray-900: #f9f8f4;
+  --ds-gray-950: #ffffff;
+
+  --ds-body-bg: #191612;
+  --ds-body-color: #e7e7e7;
+  --ds-body-color-rgb: 231, 231, 231;
+  --ds-primary-rgb: 83, 182, 121;
+
+  --ds-border-color: var(--ds-gray-300);
+  --ds-border-color-subtle: var(--ds-gray-200);
+
+  --ds-focus-ring: 0 0 0 3px rgba(83, 182, 121, 0.25);
+  --ds-focus-ring-color: rgba(83, 182, 121, 0.25);
+
+  --ds-shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.25);
+  --ds-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.3), 0 1px 3px -1px rgba(0, 0, 0, 0.2);
+  --ds-shadow-md: 0 4px 8px -1px rgba(0, 0, 0, 0.35), 0 2px 6px -2px rgba(0, 0, 0, 0.2);
+  --ds-shadow-lg: 0 10px 20px -3px rgba(0, 0, 0, 0.35), 0 4px 8px -4px rgba(0, 0, 0, 0.2);
+  --ds-shadow-xl: 0 20px 30px -5px rgba(0, 0, 0, 0.35), 0 8px 12px -6px rgba(0, 0, 0, 0.2);
+}
+
+
