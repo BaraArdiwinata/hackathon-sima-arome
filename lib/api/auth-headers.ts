@@ -33,14 +33,21 @@ export async function getAuthHeaders(): Promise<Record<string, string>> {
     const supabase = await createClient();
     const {
       data: { session },
+      error
     } = await supabase.auth.getSession();
+
+    if (error) {
+      console.error('getAuthHeaders - Supabase auth error:', error);
+    }
 
     if (session?.access_token) {
       headers['Authorization'] = `Bearer ${session.access_token}`;
+      console.log('getAuthHeaders - Session token successfully loaded');
+    } else {
+      console.warn('getAuthHeaders - No active session or access token found in cookies');
     }
-  } catch {
-    // Supabase not configured — return headers without auth token.
-    // Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in .env.local
+  } catch (err) {
+    console.error('getAuthHeaders - Exception caught:', err);
   }
 
   return headers;
