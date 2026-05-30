@@ -44,9 +44,9 @@ export default function DashboardLayoutWrapper({
   const pathname = usePathname();
   const [moduleTitle, setModuleTitle] = useState('Dashboard');
 
-  // Dynamic menu items dengan active state berdasarkan current pathname
+  // Productions Module menu items dengan active state berdasarkan current pathname
   const menuItems = useMemo<DashboardMenuItem[]>(() => {
-    const baseMenuItems = [
+    const baseMenuItems: DashboardMenuItem[] = [
       {
         id: 'dashboard',
         label: 'Dashboard',
@@ -55,23 +55,31 @@ export default function DashboardLayoutWrapper({
       },
       {
         id: 'role-management',
-        label: 'Roles',
+        label: 'Role Management',
         icon: <IconShieldLock size={20} />,
         href: '/dashboard/auth-module/roles',
+        badge: '3',
       },
       {
         id: 'user-management',
-        label: 'Users',
+        label: 'User Management',
         icon: <IconUsers size={20} />,
         href: '/dashboard/auth-module/users',
+        badge: '12',
       },
     ];
 
-    // Set active state based on current pathname
-    return baseMenuItems.map((item) => ({
-      ...item,
-      active: pathname === item.href,
-    }));
+    return baseMenuItems.map((item) => {
+      const isActive = item.href === '/dashboard/auth-module'
+        ? pathname === '/dashboard/auth-module'
+        : item.href === '/dashboard'
+        ? pathname === '/dashboard'
+        : pathname === item.href || pathname.startsWith(item.href + '/');
+      return {
+        ...item,
+        active: isActive,
+      };
+    });
   }, [pathname]);
 
   const handleMenuItemClick = (item: DashboardMenuItem) => {
@@ -91,7 +99,7 @@ export default function DashboardLayoutWrapper({
         moduleTitle={moduleTitle}
         userInfo={{
           name: 'John Smyth',
-          role: 'Essentials',
+          role: 'GC Manager',
           avatar: 'https://avatars.githubusercontent.com/u/1234?v=4',
         }}
         notificationCount={3}
