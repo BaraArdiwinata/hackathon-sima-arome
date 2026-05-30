@@ -323,6 +323,39 @@ export interface CreateRawMaterialRequest {
   received_by: string;
 }
 
+export interface CreateProductRequest {
+  type: string;
+  categories: string;
+  price: number;
+}
+
+export interface UpdateProductRequest {
+  type?: string;
+  categories?: string;
+  price?: number;
+}
+
+export interface CreateRecipeRequest {
+  products_id: string;
+  raw_material_id: string;
+  quantity: number;
+}
+
+export interface UpdateRecipeRequest {
+  raw_material_id?: string;
+  quantity?: number;
+}
+
+export interface CreatePhaseRequest {
+  name: string;
+  description: string;
+}
+
+export interface UpdatePhaseRequest {
+  name?: string;
+  description?: string;
+}
+
 export interface CreateProductionRequest {
   products_id: string;
   scheduled_date: string;
@@ -335,11 +368,33 @@ export interface CreateProductionRequest {
   created_by?: string;
 }
 
+export interface UpdateProductionRequest {
+  products_id?: string;
+  scheduled_date?: string;
+  planned_quantity?: number;
+  actual_quantity?: number;
+  start_date?: string;
+  end_date?: string;
+  status?: ProductionStatus;
+  lot_number?: string;
+}
+
 export interface CreateProductionPhaseRequest {
   production_id: string;
   phase_id: string;
   status?: ProductionPhaseStatus;
-  note: string;
+  note?: string;
+}
+
+export interface UpdateProductionPhaseRequest {
+  status?: ProductionPhaseStatus;
+  note?: string;
+}
+
+export interface CreateProductionMaterialRequest {
+  raw_material_id: string;
+  production_id: string;
+  quantity_used: number;
 }
 
 export interface CreateQualityControlRequest {

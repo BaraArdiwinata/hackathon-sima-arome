@@ -3,9 +3,10 @@
 import React, { ReactNode, createContext, useState, use, useMemo } from 'react';
 import {
   IconLayoutDashboard,
-  IconUsers,
-  IconShieldLock,
-  IconLogout,
+  IconBottle,
+  IconBuildingFactory2,
+  IconTimeline,
+  IconClipboardList,
 } from '@tabler/icons-react';
 import {
   DashboardLayout,
@@ -26,7 +27,7 @@ export const ModuleTitleContext = createContext<{
 });
 
 /**
- * Dashboard Shared Layout
+ * Dashboard Shared Layout — Productions Module
  * Wraps all dashboard pages with the DashboardLayout
  */
 export default function DashboardLayoutWrapper({
@@ -45,9 +46,9 @@ export default function DashboardLayoutWrapper({
   const pathname = usePathname();
   const [moduleTitle, setModuleTitle] = useState('Dashboard');
 
-  // Dynamic menu items dengan active state berdasarkan current pathname
+  // Productions Module menu items dengan active state berdasarkan current pathname
   const menuItems = useMemo<DashboardMenuItem[]>(() => {
-    const baseMenuItems = [
+    const baseMenuItems: DashboardMenuItem[] = [
       {
         id: 'dashboard',
         label: 'Dashboard',
@@ -55,26 +56,41 @@ export default function DashboardLayoutWrapper({
         href: '/dashboard',
       },
       {
-        id: 'role-management',
-        label: 'Role Management',
-        icon: <IconShieldLock size={20} />,
-        href: '/dashboard/roles',
-        badge: '3',
+        id: 'products',
+        label: 'Products',
+        icon: <IconBottle size={20} />,
+        href: '/dashboard/production-module/product',
       },
       {
-        id: 'user-management',
-        label: 'User Management',
-        icon: <IconUsers size={20} />,
-        href: '/dashboard/users',
-        badge: '12',
+        id: 'production',
+        label: 'Production',
+        icon: <IconBuildingFactory2 size={20} />,
+        href: '/dashboard/production-module/production',
+      },
+      {
+        id: 'tracking-phase',
+        label: 'Tracking phase',
+        icon: <IconTimeline size={20} />,
+        href: '/dashboard/production-module/tracking-phase',
+      },
+      {
+        id: 'phase',
+        label: 'Phase',
+        icon: <IconClipboardList size={20} />,
+        href: '/dashboard/production-module/phase',
       },
     ];
 
     // Set active state based on current pathname
-    return baseMenuItems.map((item) => ({
-      ...item,
-      active: pathname === item.href,
-    }));
+    return baseMenuItems.map((item) => {
+      const isActive = item.href === '/dashboard'
+        ? pathname === '/dashboard'
+        : pathname === item.href || pathname.startsWith(item.href + '/');
+      return {
+        ...item,
+        active: isActive,
+      };
+    });
   }, [pathname]);
 
   const handleMenuItemClick = (item: DashboardMenuItem) => {
@@ -95,7 +111,7 @@ export default function DashboardLayoutWrapper({
         moduleTitle={moduleTitle}
         userInfo={{
           name: 'John Smyth',
-          role: 'Essentials',
+          role: 'GC Manager',
           avatar: 'https://avatars.githubusercontent.com/u/1234?v=4',
         }}
         notificationCount={3}
