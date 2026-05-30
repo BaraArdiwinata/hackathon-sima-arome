@@ -129,7 +129,7 @@ export default function WarehouseDetailPage({ params }: { params: Promise<{ id: 
             leftSection={<IconArrowLeft size={16} />}
             variant="subtle"
             color="gray"
-            onClick={() => router.push('/dashboard/scm/warehouse')}
+            onClick={() => router.push('/dashboard/warehouse-module/warehouse')}
           >
             Kembali ke Gudang
           </Button>
@@ -171,7 +171,7 @@ export default function WarehouseDetailPage({ params }: { params: Promise<{ id: 
             leftSection={<IconArrowLeft size={16} />}
             variant="subtle"
             color="violet"
-            onClick={() => router.push('/dashboard/scm/warehouse')}
+            onClick={() => router.push('/dashboard/warehouse-module/warehouse')}
           >
             Kembali ke Daftar Gudang
           </Button>
@@ -389,7 +389,7 @@ export default function WarehouseDetailPage({ params }: { params: Promise<{ id: 
                               <ActionIcon
                                 variant="light"
                                 color="blue"
-                                onClick={() => router.push(`/dashboard/scm/stocks/${rm.id}`)}
+                                onClick={() => router.push(`/dashboard/warehouse-module/product/${rm.id}`)}
                               >
                                 <IconEye size={16} />
                               </ActionIcon>
@@ -428,7 +428,7 @@ export default function WarehouseDetailPage({ params }: { params: Promise<{ id: 
                               <ActionIcon
                                 variant="light"
                                 color="blue"
-                                onClick={() => router.push(`/dashboard/scm/stocks/${prod.id}`)}
+                                onClick={() => router.push(`/dashboard/warehouse-module/product/${prod.id}`)}
                                 disabled
                               >
                                 <IconEye size={16} />

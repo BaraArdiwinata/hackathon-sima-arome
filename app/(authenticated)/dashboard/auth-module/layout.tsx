@@ -49,19 +49,19 @@ export default function DashboardLayoutWrapper({
         id: 'dashboard-scm',
         label: 'Dashboard SCM',
         icon: <IconLayoutDashboard size={20} />,
-        href: '/dashboard/scm',
+        href: '/dashboard/warehouse-module',
       },
       {
         id: 'warehouse-management',
         label: 'Warehouse Management',
         icon: <IconBuildingWarehouse size={20} />,
-        href: '/dashboard/scm/warehouse',
+        href: '/dashboard/warehouse-module/warehouse',
       },
       {
         id: 'stock-management',
         label: 'Stock Management',
         icon: <IconPackages size={20} />,
-        href: '/dashboard/scm/stocks',
+        href: '/dashboard/warehouse-module/product',
       },
       {
         id: 'role-management',
@@ -78,7 +78,7 @@ export default function DashboardLayoutWrapper({
     ];
 
     // Separate SCM module menus and Auth/User/Role module menus completely
-    const isScmModule = pathname.startsWith('/dashboard/scm') || pathname.startsWith('/dashboard/warehouse');
+    const isScmModule = pathname.startsWith('/dashboard/warehouse-module');
     const filteredMenuItems = isScmModule
       ? baseMenuItems.filter((item) => item.id !== 'role-management' && item.id !== 'user-management' && item.id !== 'dashboard')
       : baseMenuItems.filter((item) => item.id !== 'dashboard-scm' && item.id !== 'warehouse-management' && item.id !== 'stock-management');

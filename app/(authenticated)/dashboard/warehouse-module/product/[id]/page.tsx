@@ -210,7 +210,7 @@ export default function StockDetailPage({ params }: { params: Promise<{ id: stri
             leftSection={<IconArrowLeft size={16} />}
             variant="subtle"
             color="gray"
-            onClick={() => router.push('/dashboard/scm/stocks')}
+            onClick={() => router.push('/dashboard/warehouse-module/product')}
           >
             Kembali ke Persediaan
           </Button>
@@ -283,7 +283,7 @@ export default function StockDetailPage({ params }: { params: Promise<{ id: stri
             leftSection={<IconArrowLeft size={16} />}
             variant="subtle"
             color="violet"
-            onClick={() => router.push('/dashboard/scm/stocks')}
+            onClick={() => router.push('/dashboard/warehouse-module/product')}
           >
             Kembali ke Daftar Stok
           </Button>

@@ -443,7 +443,7 @@ export default function WarehousesPage() {
                               <ActionIcon
                                 variant="light"
                                 color="blue"
-                                onClick={() => router.push(`/dashboard/scm/warehouse/${wh.id}`)}
+                                onClick={() => router.push(`/dashboard/warehouse-module/warehouse/${wh.id}`)}
                               >
                                 <IconEye size={16} />
                               </ActionIcon>

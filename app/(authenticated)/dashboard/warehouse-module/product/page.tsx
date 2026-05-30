@@ -309,7 +309,7 @@ export default function StockManagementPage() {
                             <ActionIcon
                               variant="light"
                               color="blue"
-                              onClick={() => router.push(`/dashboard/scm/stocks/${item.id}`)}
+                              onClick={() => router.push(`/dashboard/warehouse-module/product/${item.id}`)}
                             >
                               <IconEye size={16} />
                             </ActionIcon>

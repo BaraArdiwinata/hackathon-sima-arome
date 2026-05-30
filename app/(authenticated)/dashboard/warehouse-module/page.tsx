@@ -388,38 +388,38 @@ export default function DashboardPage() {
                         const offset3 = 25;
 
                         return (
-                          <>
-                            {/* Available (Green) */}
-                            {pAvailable > 0 && (
-                              <circle 
-                                cx="18" cy="18" r="15.915" 
-                                fill="none" stroke="var(--mantine-color-teal-filled)" 
-                                strokeWidth="3.2" 
-                                strokeDasharray={`${pAvailable} ${100 - pAvailable}`} 
-                                strokeDashoffset={offset3}
-                              />
-                            )}
-                            {/* Low Stock (Orange) */}
-                            {pLow > 0 && (
-                              <circle 
-                                cx="18" cy="18" r="15.915" 
-                                fill="none" stroke="var(--mantine-color-orange-filled)" 
-                                strokeWidth="3.2" 
-                                strokeDasharray={`${pLow} ${100 - pLow}`} 
-                                strokeDashoffset={offset1}
-                              />
-                            )}
-                            {/* Out of Stock (Red) */}
-                            {pOut > 0 && (
-                              <circle 
-                                cx="18" cy="18" r="15.915" 
-                                fill="none" stroke="var(--mantine-color-red-filled)" 
-                                strokeWidth="3.2" 
-                                strokeDasharray={`${pOut} ${100 - pOut}`} 
-                                strokeDashoffset={offset2}
-                              />
-                            )}
-                          </>
+                           <>
+                             {/* Available (Green) */}
+                             {pAvailable > 0 && (
+                               <circle 
+                                 cx="18" cy="18" r="15.915" 
+                                 fill="none" stroke="var(--mantine-color-teal-filled)" 
+                                 strokeWidth="3.2" 
+                                 strokeDasharray={`${pAvailable} ${100 - pAvailable}`} 
+                                 strokeDashoffset={offset3}
+                               />
+                             )}
+                             {/* Low Stock (Orange) */}
+                             {pLow > 0 && (
+                               <circle 
+                                 cx="18" cy="18" r="15.915" 
+                                 fill="none" stroke="var(--mantine-color-orange-filled)" 
+                                 strokeWidth="3.2" 
+                                 strokeDasharray={`${pLow} ${100 - pLow}`} 
+                                 strokeDashoffset={offset1}
+                               />
+                             )}
+                             {/* Out of Stock (Red) */}
+                             {pOut > 0 && (
+                               <circle 
+                                 cx="18" cy="18" r="15.915" 
+                                 fill="none" stroke="var(--mantine-color-red-filled)" 
+                                 strokeWidth="3.2" 
+                                 strokeDasharray={`${pOut} ${100 - pOut}`} 
+                                 strokeDashoffset={offset2}
+                               />
+                             )}
+                           </>
                         );
                       })()}
                     </svg>
