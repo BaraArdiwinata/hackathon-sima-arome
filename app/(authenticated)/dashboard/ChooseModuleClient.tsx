@@ -42,7 +42,7 @@ export default function ChooseModuleClient({
       permissionCode: 'warehouse',
       title: 'Warehouse',
       icon: <IconBuildingWarehouse size={32} stroke={1.5} />,
-      href: '/dashboard/warehouse-module',
+      href: '/dashboard/warehouse',
       description: 'Manage cold storage inventory & stocks',
     },
     {
@@ -50,7 +50,7 @@ export default function ChooseModuleClient({
       permissionCode: 'productions',
       title: 'Productions',
       icon: <IconFlask size={32} stroke={1.5} />,
-      href: '/dashboard/production-module',
+      href: '/dashboard/productions',
       description: 'Track compounding timeline & batching',
     },
     {
@@ -58,7 +58,7 @@ export default function ChooseModuleClient({
       permissionCode: 'raw_materials',
       title: 'Raw Materials',
       icon: <IconLeaf size={32} stroke={1.5} />,
-      href: '/dashboard/raw-material-module',
+      href: '/dashboard/raw-materials',
       description: 'Monitor procurement and formulas',
     },
     {
@@ -66,7 +66,7 @@ export default function ChooseModuleClient({
       permissionCode: 'quality_control',
       title: 'Quality Control',
       icon: <IconClipboardCheck size={32} stroke={1.5} />,
-      href: '/dashboard/quality-control-module',
+      href: '/dashboard/quality-control',
       description: 'Verify raw materials & lots testing',
     }
   ];

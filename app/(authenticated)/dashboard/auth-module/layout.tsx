@@ -1,21 +1,31 @@
 'use client';
 
-import React, { ReactNode, useState, use, useMemo } from 'react';
+import React, { ReactNode, createContext, useState, use, useMemo } from 'react';
 import {
   IconLayoutDashboard,
   IconUsers,
   IconShieldLock,
-  IconLogout,
 } from '@tabler/icons-react';
 import {
   DashboardLayout,
   type DashboardMenuItem,
 } from '@/components/ui/dashboard-layout';
 import { useRouter, usePathname } from 'next/navigation';
-import { ModuleTitleContext } from '@/components/ModuleTitleContext';
 
 /**
- * Dashboard Shared Layout — Productions Module
+ * Context untuk moduleTitle
+ * Memungkinkan setiap page untuk set moduleTitle sendiri
+ */
+export const ModuleTitleContext = createContext<{
+  moduleTitle: string;
+  setModuleTitle: (title: string) => void;
+}>({
+  moduleTitle: 'Dashboard',
+  setModuleTitle: () => {},
+});
+
+/**
+ * Dashboard Shared Layout
  * Wraps all dashboard pages with the DashboardLayout
  */
 export default function DashboardLayoutWrapper({
