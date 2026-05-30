@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useContext } from 'react';
-import { ModuleTitleContext } from '@/app/(authenticated)/dashboard/layout';
+import { ModuleTitleContext } from '@/components/ModuleTitleContext';
 
 export default function ProductLayout({ children }: { children: React.ReactNode }) {
   const { setModuleTitle } = useContext(ModuleTitleContext);

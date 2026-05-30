@@ -1,6 +1,6 @@
 'use client';
 
-import React, { ReactNode, createContext, useState, use, useMemo } from 'react';
+import React, { ReactNode, useState, use, useMemo } from 'react';
 import {
   IconLayoutDashboard,
   IconUsers,
@@ -12,18 +12,7 @@ import {
   type DashboardMenuItem,
 } from '@/components/ui/dashboard-layout';
 import { useRouter, usePathname } from 'next/navigation';
-
-/**
- * Context untuk moduleTitle
- * Memungkinkan setiap page untuk set moduleTitle sendiri
- */
-export const ModuleTitleContext = createContext<{
-  moduleTitle: string;
-  setModuleTitle: (title: string) => void;
-}>({
-  moduleTitle: 'Dashboard',
-  setModuleTitle: () => {},
-});
+import { ModuleTitleContext } from '@/components/ModuleTitleContext';
 
 /**
  * Dashboard Shared Layout — Productions Module
@@ -58,21 +47,22 @@ export default function DashboardLayoutWrapper({
         id: 'role-management',
         label: 'Role Management',
         icon: <IconShieldLock size={20} />,
-        href: '/dashboard/roles',
+        href: '/dashboard/auth-module/roles',
         badge: '3',
       },
       {
         id: 'user-management',
         label: 'User Management',
         icon: <IconUsers size={20} />,
-        href: '/dashboard/users',
+        href: '/dashboard/auth-module/users',
         badge: '12',
       },
     ];
 
-    // Set active state based on current pathname
     return baseMenuItems.map((item) => {
-      const isActive = item.href === '/dashboard'
+      const isActive = item.href === '/dashboard/auth-module'
+        ? pathname === '/dashboard/auth-module'
+        : item.href === '/dashboard'
         ? pathname === '/dashboard'
         : pathname === item.href || pathname.startsWith(item.href + '/');
       return {

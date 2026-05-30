@@ -3,11 +3,11 @@
 import React from 'react';
 import { Box, Paper, Stack, Text, Group, ThemeIcon } from '@mantine/core';
 import { useRouter } from 'next/navigation';
-import { 
-  IconShieldLock, 
-  IconBuildingWarehouse, 
-  IconFlask, 
-  IconLeaf, 
+import {
+  IconShieldLock,
+  IconBuildingWarehouse,
+  IconFlask,
+  IconLeaf,
   IconClipboardCheck,
   IconAlertCircle
 } from '@tabler/icons-react';
@@ -42,7 +42,7 @@ export default function ChooseModuleClient({
       permissionCode: 'warehouse',
       title: 'Warehouse',
       icon: <IconBuildingWarehouse size={32} stroke={1.5} />,
-      href: '/dashboard/warehouse',
+      href: '/dashboard/warehouse-module',
       description: 'Manage cold storage inventory & stocks',
     },
     {
@@ -50,7 +50,7 @@ export default function ChooseModuleClient({
       permissionCode: 'productions',
       title: 'Productions',
       icon: <IconFlask size={32} stroke={1.5} />,
-      href: '/dashboard/productions',
+      href: '/dashboard/production-module',
       description: 'Track compounding timeline & batching',
     },
     {
@@ -58,7 +58,7 @@ export default function ChooseModuleClient({
       permissionCode: 'raw_materials',
       title: 'Raw Materials',
       icon: <IconLeaf size={32} stroke={1.5} />,
-      href: '/dashboard/raw-materials',
+      href: '/dashboard/raw-material-module',
       description: 'Monitor procurement and formulas',
     },
     {
@@ -66,18 +66,18 @@ export default function ChooseModuleClient({
       permissionCode: 'quality_control',
       title: 'Quality Control',
       icon: <IconClipboardCheck size={32} stroke={1.5} />,
-      href: '/dashboard/quality-control',
+      href: '/dashboard/quality-control-module',
       description: 'Verify raw materials & lots testing',
     }
   ];
 
   // Filter modules based on server-verified allowed permissions (or show all if Super Admin)
-  const filteredModules = isSuperAdmin 
-    ? allModules 
-    : allModules.filter(mod => 
-        allowedModuleCodes.includes(mod.permissionCode) || 
-        allowedModuleCodes.includes(mod.id)
-      );
+  const filteredModules = isSuperAdmin
+    ? allModules
+    : allModules.filter(mod =>
+      allowedModuleCodes.includes(mod.permissionCode) ||
+      allowedModuleCodes.includes(mod.id)
+    );
 
   return (
     <>
@@ -260,10 +260,10 @@ export default function ChooseModuleClient({
               </Stack>
             ) : (
               /* Autosizing Proportional Flex Container (Centered and aesthetically perfect for < 5 cards) */
-              <Group 
-                justify="center" 
-                align="stretch" 
-                gap="lg" 
+              <Group
+                justify="center"
+                align="stretch"
+                gap="lg"
                 style={{ width: '100%', display: 'flex', flexWrap: 'wrap' }}
               >
                 {filteredModules.map((mod) => (
@@ -276,9 +276,9 @@ export default function ChooseModuleClient({
                       <h3 className="module-card-title">{mod.title}</h3>
                     </Box>
                     <Stack align="center" justify="center" gap="sm" style={{ flex: 1, padding: '20px 12px' }}>
-                      <ThemeIcon 
-                        radius="xl" 
-                        size={64} 
+                      <ThemeIcon
+                        radius="xl"
+                        size={64}
                         style={{
                           backgroundColor: 'var(--ds-primary-100, #ebf7f0)',
                           color: 'var(--ds-primary, #1e5b3a)',
@@ -287,12 +287,12 @@ export default function ChooseModuleClient({
                       >
                         {mod.icon}
                       </ThemeIcon>
-                      <Text 
-                        size="xs" 
-                        c="dimmed" 
-                        ta="center" 
-                        style={{ 
-                          fontFamily: "var(--ds-font-sans, 'Inter', sans-serif)", 
+                      <Text
+                        size="xs"
+                        c="dimmed"
+                        ta="center"
+                        style={{
+                          fontFamily: "var(--ds-font-sans, 'Inter', sans-serif)",
                           lineHeight: 1.4,
                           fontWeight: 400
                         }}
