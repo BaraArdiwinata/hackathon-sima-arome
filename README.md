@@ -8,6 +8,21 @@
 
 > **Tagline**: One Platform. One Process. One Source of Truth.
 
+## 🔑 Live Demo & Test Accounts
+
+Experience the full capabilities of SIMA AROME. Access the live platform here:
+👉 **[Live Demo: SIMA AROME ERP](https://main.d1fc34ifmgcyf4.amplifyapp.com/login)**
+
+Use the following test credentials to explore the system from different role perspectives. Each role has specific access restrictions and tailored dashboards:
+
+| Role | Email | Password |
+| :--- | :--- | :--- |
+| **👑 Super Admin** | admin@simaarome.com | password123 |
+| **📦 Procurement** | procurement@simaarome.com | password123 |
+| **🧪 Quality Control** | qc@simaarome.com | password123 |
+| **🏢 Warehouse** | warehouse@simaarome.com | password123 |
+| **⚗️ Production** | production@simaarome.com | password123 |
+
 ---
 
 ## 📌 About The Project
