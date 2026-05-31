@@ -70,10 +70,12 @@ export default function RawMaterialIntakePage() {
   // Modal State
   const [opened, setOpened] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [formErrors, setFormErrors] = useState<Record<string, boolean>>({});
 
   // Form States
   const [formIntakeNumber, setFormIntakeNumber] = useState('');
   const [formSupplierId, setFormSupplierId] = useState<string>('');
+  const [formProductSupplierId, setFormProductSupplierId] = useState<string>('');
   const [formOfferId, setFormOfferId] = useState<string>('');
   const [formBatchCode, setFormBatchCode] = useState('');
   const [formMaterialName, setFormMaterialName] = useState('');
@@ -137,12 +139,14 @@ export default function RawMaterialIntakePage() {
     
     setFormIntakeNumber(`INTAKE-${dateStr}-${randomSuffix}`);
     setFormSupplierId('');
+    setFormProductSupplierId('');
     setFormOfferId('');
     setFormBatchCode('');
     setFormMaterialName('');
     setFormWeightKg(50);
     setFormTotalPrice(0);
     setFormNotes('');
+    setFormErrors({});
     setOpened(true);
   };
 
@@ -176,40 +180,56 @@ export default function RawMaterialIntakePage() {
     return 'Sima Arôme Supplier';
   };
 
-  // Filter supplier offers
-  const filteredOffers = React.useMemo(() => {
-    if (!formSupplierId) return [];
-    return offers
-      .filter(o => o.supplier_id === formSupplierId)
-      .map(o => {
-        const prodName = productSupplierMap.get(o.product_supplier_id) || 'Raw Material';
-        return {
-          value: o.id,
-          label: `${prodName} (Rp ${o.price.toLocaleString('id-ID')}/${o.lead_time} days)`,
-          price: o.price,
-          name: prodName
-        };
-      });
-  }, [formSupplierId, offers, productSupplierMap]);
+  // Master catalog options for Offered Material dropdown
+  const catalogOptions = React.useMemo(() => {
+    return productSuppliers.map(ps => ({
+      value: ps.id,
+      label: `${ps.name} (Rp ${ps.price.toLocaleString('id-ID')}/${ps.unit})`,
+      price: ps.price,
+      name: ps.name
+    }));
+  }, [productSuppliers]);
 
-  // Recalculate price when offer or quantity changes
-  const handleOfferChange = (offerId: string | null) => {
-    if (!offerId) return;
-    setFormOfferId(offerId);
-    const selected = filteredOffers.find(o => o.value === offerId);
-    if (selected) {
-      setFormMaterialName(selected.name);
-      const computedPrice = selected.price * formWeightKg;
-      setFormTotalPrice(computedPrice);
+  // Recalculate price when catalog material changes
+  const handleCatalogChange = (prodId: string | null) => {
+    if (!prodId) {
+      setFormProductSupplierId('');
+      setFormOfferId('');
+      setFormMaterialName('');
+      setFormTotalPrice(0);
+      return;
+    }
+
+    setFormProductSupplierId(prodId);
+    
+    // Find if there is an existing negotiated Offer for this supplier and product
+    const foundOffer = offers.find(o => o.supplier_id === formSupplierId && o.product_supplier_id === prodId);
+    const prod = productSuppliers.find(p => p.id === prodId);
+    
+    if (foundOffer) {
+      setFormOfferId(foundOffer.id);
+      setFormMaterialName(prod ? prod.name : 'Raw Material');
+      setFormTotalPrice(foundOffer.price * formWeightKg);
+    } else {
+      setFormOfferId(''); // Null if no customized offer
+      setFormMaterialName(prod ? prod.name : 'Raw Material');
+      setFormTotalPrice((prod ? prod.price : 0) * formWeightKg);
     }
   };
 
   const handleWeightChange = (val: number | string) => {
     const qty = Number(val) || 0;
     setFormWeightKg(qty);
-    const selected = filteredOffers.find(o => o.value === formOfferId);
-    if (selected) {
-      setFormTotalPrice(selected.price * qty);
+    
+    const foundOffer = offers.find(o => o.supplier_id === formSupplierId && o.product_supplier_id === formProductSupplierId);
+    const prod = productSuppliers.find(p => p.id === formProductSupplierId);
+    
+    if (foundOffer) {
+      setFormTotalPrice(foundOffer.price * qty);
+    } else if (prod) {
+      setFormTotalPrice(prod.price * qty);
+    } else {
+      setFormTotalPrice(0);
     }
   };
 
@@ -217,7 +237,27 @@ export default function RawMaterialIntakePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formSupplierId || !formOfferId || !formBatchCode || !formWarehouseId || !currentUser) {
+    if (!currentUser) {
+      notifications.show({
+        title: 'Authentication Required',
+        message: 'Please log in to register raw material intakes.',
+        color: 'red'
+      });
+      return;
+    }
+
+    const errors: Record<string, boolean> = {};
+    if (!formWarehouseId) errors.warehouseId = true;
+    if (!formSupplierId) errors.supplierId = true;
+    if (!formProductSupplierId) errors.productSupplierId = true;
+    if (!formBatchCode) errors.batchCode = true;
+    if (!formCategory) errors.category = true;
+    if (!formWeightKg || formWeightKg <= 0) errors.weightKg = true;
+    if (!formUnit) errors.unit = true;
+    if (!formReceivedAt) errors.receivedAt = true;
+
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
       notifications.show({
         title: 'Incomplete Form',
         message: 'Please fill in all required fields.',
@@ -231,7 +271,7 @@ export default function RawMaterialIntakePage() {
 
       const payload = {
         supplier_id: formSupplierId,
-        offer_id: formOfferId,
+        offer_id: formOfferId || null,
         warehouse_id: formWarehouseId,
         intake_number: formIntakeNumber,
         batch_code: formBatchCode,
@@ -540,8 +580,12 @@ export default function RawMaterialIntakePage() {
                 placeholder="Select Warehouse"
                 data={warehouses.map(w => ({ value: w.id, label: `${w.name} (${w.code})` }))}
                 value={formWarehouseId}
-                onChange={(val) => setFormWarehouseId(val || '')}
+                onChange={(val) => {
+                  setFormWarehouseId(val || '');
+                  if (val) setFormErrors(prev => ({ ...prev, warehouseId: false }));
+                }}
                 required
+                error={formErrors.warehouseId ? 'Storage Warehouse is required' : null}
                 style={{ fontFamily: 'var(--ds-font-sans, sans-serif)' }}
                 styles={{
                   input: { fontFamily: 'var(--ds-font-sans, sans-serif)' },
@@ -558,9 +602,12 @@ export default function RawMaterialIntakePage() {
               value={formSupplierId}
               onChange={(val) => {
                 setFormSupplierId(val || '');
+                setFormProductSupplierId('');
                 setFormOfferId('');
+                if (val) setFormErrors(prev => ({ ...prev, supplierId: false }));
               }}
               required
+              error={formErrors.supplierId ? 'Supplier is required' : null}
               style={{ fontFamily: 'var(--ds-font-sans, sans-serif)' }}
               styles={{
                 input: { fontFamily: 'var(--ds-font-sans, sans-serif)' },
@@ -572,10 +619,14 @@ export default function RawMaterialIntakePage() {
               label="Offered Material"
               placeholder={formSupplierId ? "Select Material" : "Select Supplier First"}
               disabled={!formSupplierId}
-              data={filteredOffers}
-              value={formOfferId}
-              onChange={handleOfferChange}
+              data={catalogOptions}
+              value={formProductSupplierId}
+              onChange={(val) => {
+                handleCatalogChange(val);
+                if (val) setFormErrors(prev => ({ ...prev, productSupplierId: false }));
+              }}
               required
+              error={formErrors.productSupplierId ? 'Offered Material is required' : null}
               style={{ fontFamily: 'var(--ds-font-sans, sans-serif)' }}
               styles={{
                 input: { fontFamily: 'var(--ds-font-sans, sans-serif)' },
@@ -588,8 +639,12 @@ export default function RawMaterialIntakePage() {
                 label="Supplier Batch Number"
                 placeholder="e.g., RM-LAV-2026"
                 value={formBatchCode}
-                onChange={(e) => setFormBatchCode(e.currentTarget.value)}
+                onChange={(e) => {
+                  setFormBatchCode(e.currentTarget.value);
+                  if (e.currentTarget.value) setFormErrors(prev => ({ ...prev, batchCode: false }));
+                }}
                 required
+                error={formErrors.batchCode ? 'Supplier Batch Number is required' : null}
                 style={{ fontFamily: 'var(--ds-font-sans, sans-serif)' }}
                 styles={{
                   input: { fontFamily: 'var(--ds-font-sans, sans-serif)' }
@@ -598,8 +653,12 @@ export default function RawMaterialIntakePage() {
               <TextInput
                 label="Material Category"
                 value={formCategory}
-                onChange={(e) => setFormCategory(e.currentTarget.value)}
+                onChange={(e) => {
+                  setFormCategory(e.currentTarget.value);
+                  if (e.currentTarget.value) setFormErrors(prev => ({ ...prev, category: false }));
+                }}
                 required
+                error={formErrors.category ? 'Material Category is required' : null}
                 style={{ fontFamily: 'var(--ds-font-sans, sans-serif)' }}
                 styles={{
                   input: { fontFamily: 'var(--ds-font-sans, sans-serif)' }
@@ -613,8 +672,12 @@ export default function RawMaterialIntakePage() {
                 min={0.1}
                 decimalScale={2}
                 value={formWeightKg}
-                onChange={handleWeightChange}
+                onChange={(val) => {
+                  handleWeightChange(val);
+                  if (val) setFormErrors(prev => ({ ...prev, weightKg: false }));
+                }}
                 required
+                error={formErrors.weightKg ? 'Quantity must be greater than 0' : null}
                 style={{ fontFamily: 'var(--ds-font-sans, sans-serif)' }}
                 styles={{
                   input: { fontFamily: 'var(--ds-font-sans, sans-serif)' }
@@ -624,8 +687,12 @@ export default function RawMaterialIntakePage() {
                 label="Unit"
                 data={['kg', 'liter', 'gram']}
                 value={formUnit}
-                onChange={(val) => setFormUnit(val || 'kg')}
+                onChange={(val) => {
+                  setFormUnit(val || 'kg');
+                  if (val) setFormErrors(prev => ({ ...prev, unit: false }));
+                }}
                 required
+                error={formErrors.unit ? 'Unit is required' : null}
                 style={{ fontFamily: 'var(--ds-font-sans, sans-serif)' }}
                 styles={{
                   input: { fontFamily: 'var(--ds-font-sans, sans-serif)' },
@@ -638,10 +705,16 @@ export default function RawMaterialIntakePage() {
               <DateInput
                 label="Intake Date"
                 placeholder="Select Date"
-                value={formReceivedAt ? new Date(formReceivedAt) : null}
-                onChange={(d: any) => setFormReceivedAt(d ? d.toISOString().split('T')[0] : null)}
+                value={formReceivedAt && !isNaN(new Date(formReceivedAt).getTime()) ? new Date(formReceivedAt) : null}
+                onChange={(d: any) => {
+                  const formatted = d && !isNaN(new Date(d).getTime()) ? new Date(d).toISOString().split('T')[0] : null;
+                  setFormReceivedAt(formatted);
+                  if (formatted) setFormErrors(prev => ({ ...prev, receivedAt: false }));
+                }}
+                popoverProps={{ withinPortal: true, zIndex: 10000 }}
                 leftSection={<IconCalendar size={16} />}
                 required
+                error={formErrors.receivedAt ? 'Intake Date is required' : null}
                 style={{ fontFamily: 'var(--ds-font-sans, sans-serif)' }}
                 styles={{
                   input: { fontFamily: 'var(--ds-font-sans, sans-serif)' }
@@ -650,8 +723,12 @@ export default function RawMaterialIntakePage() {
               <DateInput
                 label="Expiration Date"
                 placeholder="Select Date"
-                value={formExpiredDate ? new Date(formExpiredDate) : null}
-                onChange={(d: any) => setFormExpiredDate(d ? d.toISOString().split('T')[0] : null)}
+                value={formExpiredDate && !isNaN(new Date(formExpiredDate).getTime()) ? new Date(formExpiredDate) : null}
+                onChange={(d: any) => {
+                  const formatted = d && !isNaN(new Date(d).getTime()) ? new Date(d).toISOString().split('T')[0] : null;
+                  setFormExpiredDate(formatted);
+                }}
+                popoverProps={{ withinPortal: true, zIndex: 10000 }}
                 leftSection={<IconCalendar size={16} />}
                 style={{ fontFamily: 'var(--ds-font-sans, sans-serif)' }}
                 styles={{

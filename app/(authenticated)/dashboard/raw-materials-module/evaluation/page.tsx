@@ -231,8 +231,14 @@ export default function SupplierEvaluationPage() {
     [1, 1, 1, 1, 1],
   ]);
 
-  // 2. Qualitative Supplier Scores (Prices and Service) that users can adjust
-  const [supplierQualitativeRatings, setSupplierQualitativeRatings] = useState<Record<string, { price: number; service: number }>>({});
+  // 2. Supplier Scores (Quality, Accuracy, Timeliness, Price, Service) that users can adjust manually
+  const [supplierQualitativeRatings, setSupplierQualitativeRatings] = useState<Record<string, {
+    quality: number;
+    accuracy: number;
+    timeliness: number;
+    price: number;
+    service: number;
+  }>>({});
 
   const fetchData = async () => {
     try {
@@ -252,10 +258,19 @@ export default function SupplierEvaluationPage() {
       setOffers(Array.isArray(offersData) ? offersData : []);
       setProductSuppliers(Array.isArray(psData) ? psData : []);
 
-      // Initialize qualitative sliders for each supplier
-      const initRatings: Record<string, { price: number; service: number }> = {};
+      // Initialize manual sliders (1-100) for each supplier
+      const initRatings: Record<string, {
+        quality: number;
+        accuracy: number;
+        timeliness: number;
+        price: number;
+        service: number;
+      }> = {};
       activeSuppliers.forEach(sup => {
         initRatings[sup.id] = {
+          quality: 80,
+          accuracy: 80,
+          timeliness: 80,
           price: 80,
           service: sup.favorite ? 90 : 75,
         };
@@ -309,8 +324,12 @@ export default function SupplierEvaluationPage() {
     return map;
   }, [offers]);
 
-  // Handle Qualitative Slider Adjustments
-  const handleRatingChange = (supId: string, key: 'price' | 'service', val: number) => {
+  // Handle Qualitative/Manual Slider Adjustments
+  const handleRatingChange = (
+    supId: string,
+    key: 'quality' | 'accuracy' | 'timeliness' | 'price' | 'service',
+    val: number
+  ) => {
     setSupplierQualitativeRatings(prev => ({
       ...prev,
       [supId]: {
@@ -337,51 +356,19 @@ export default function SupplierEvaluationPage() {
 
     return eligibleSuppliers
       .map(sup => {
-        // Query cargo deliveries (scoped to selected material if filter active)
-        const deliveries = rawMaterials.filter(item => {
-          const belongsToSupplier =
-            item.supplier_id === sup.id ||
-            (item.offer_id && offerToSupplierMap.get(item.offer_id) === sup.id);
-          if (!belongsToSupplier) return false;
-          if (!selectedMaterialId) return true;
-          // When a material filter is active, further restrict to that material's offers
-          const offerForMaterial = offers.find(
-            o => o.id === item.offer_id && o.product_supplier_id === selectedMaterialId
-          );
-          return !!offerForMaterial || item.offer_id === null; // include direct supplier_id records
-        });
-
-        const totalDeliveries = deliveries.length;
-        const accepted = deliveries.filter(item => item.status === 'QC_ACCEPTED' || item.status === 'IN_PRODUCTION').length;
-        const rejected = deliveries.filter(item => item.status === 'QC_REJECTED').length;
-
-        // C1: Product Quality — ratio of accepted / total QC-reviewed batches (live DB data)
-        const qualityScore = totalDeliveries > 0 ? (accepted / totalDeliveries) * 100 : 100;
-
-        // C2: Delivery Accuracy — penalise rejections (live DB data)
-        const accuracyScore = totalDeliveries > 0
-          ? Math.max(0, 100 - (rejected / totalDeliveries) * 50)
-          : 100;
-
-        // C3: Delivery Timeliness — derived from offers.lead_time (best available proxy)
-        //     Shorter lead time → higher timeliness score; floor at 40
-        const supOffers = offers.filter(o => {
-          if (o.supplier_id !== sup.id) return false;
-          if (selectedMaterialId) return o.product_supplier_id === selectedMaterialId;
-          return true;
-        });
-        const avgLeadTime = supOffers.length > 0
-          ? supOffers.reduce((sum, o) => sum + o.lead_time, 0) / supOffers.length
-          : 5;
-        const timelinessScore = Math.max(40, 100 - avgLeadTime * 5);
-
-        // C4 & C5: Qualitative sliders (price & service responsiveness)
-        const ratings = supplierQualitativeRatings[sup.id] || { price: 80, service: 75 };
+        // C1 to C5 are manually adjustable scores from the sliders
+        const ratings = supplierQualitativeRatings[sup.id] || {
+          quality: 80,
+          accuracy: 80,
+          timeliness: 80,
+          price: 80,
+          service: sup.favorite ? 90 : 75,
+        };
 
         const scores: SupplierScoreInput = {
-          productQuality: qualityScore,
-          deliveryAccuracy: accuracyScore,
-          deliveryTimeliness: timelinessScore,
+          productQuality: ratings.quality,
+          deliveryAccuracy: ratings.accuracy,
+          deliveryTimeliness: ratings.timeliness,
           priceCompetitiveness: ratings.price,
           serviceResponsiveness: ratings.service,
         };
@@ -399,7 +386,7 @@ export default function SupplierEvaluationPage() {
       })
       .sort((a, b) => b.finalScore - a.finalScore)
       .map((item, idx) => ({ ...item, rank: idx + 1 }));
-  }, [suppliers, selectedMaterialId, offers, rawMaterials, offerToSupplierMap, supplierQualitativeRatings, ahpResult.weights]);
+  }, [suppliers, selectedMaterialId, offers, supplierQualitativeRatings, ahpResult.weights]);
 
   // Dynamic data for Radar Chart
   const radarChartData = React.useMemo(() => {
@@ -433,6 +420,13 @@ export default function SupplierEvaluationPage() {
       );
     }
     return val;
+  };
+
+  // Color helper based on dynamic scoring ranges
+  const getScoreColor = (score: number): string => {
+    if (score <= 40) return '#f03e3e';
+    if (score <= 79) return '#e67700';
+    return '#1e5b3a';
   };
 
   // Save AHP Decision handler
@@ -687,32 +681,103 @@ export default function SupplierEvaluationPage() {
               <Group gap="xs" mb="sm">
                 <IconUsers size={20} color="#1e5b3a" />
                 <Title order={3} style={{ fontFamily: 'var(--ds-font-subheader)', color: '#1e5b3a' }}>
-                  Qualitative Supplier Ratings
+                  Manual Supplier Performance Ratings
                 </Title>
               </Group>
               <Text size="xs" c="dimmed" mb="lg" style={{ fontFamily: 'var(--ds-font-sans, sans-serif)' }}>
-                Quality (C1) and timeliness (C2, C3) are automatically resolved from SCM records. Adjust Price (C4) and Service (C5) parameters:
+                All performance criteria are fully adjustable. Move sliders from 1-100 to evaluate each supplier manually:
               </Text>
 
               <Stack gap="xl">
                 {suppliers.map(sup => {
-                  const ratings = supplierQualitativeRatings[sup.id] || { price: 80, service: 75 };
+                  const ratings = supplierQualitativeRatings[sup.id] || {
+                    quality: 80,
+                    accuracy: 80,
+                    timeliness: 80,
+                    price: 80,
+                    service: sup.favorite ? 90 : 75,
+                  };
                   return (
                     <Card key={sup.id} p="sm" withBorder radius="sm">
                       <Text size="sm" fw={700} c="var(--ds-primary)" mb="xs" style={{ fontFamily: 'var(--ds-font-sans, sans-serif)' }}>{sup.name}</Text>
                       
+                      {/* Quality Slider */}
+                      <div style={{ marginBottom: 12 }}>
+                        <Group justify="space-between" mb={2}>
+                          <Text size="xxs" fw={700} c="dimmed" style={{ fontFamily: 'var(--ds-font-sans, sans-serif)' }}>PRODUCT QUALITY (C1)</Text>
+                          <Text size="xxs" fw={800} style={{ fontFamily: 'var(--ds-font-sans, sans-serif)', color: getScoreColor(ratings.quality) }}>{ratings.quality}/100</Text>
+                        </Group>
+                        <Slider
+                          size="sm"
+                          min={1}
+                          max={100}
+                          value={ratings.quality}
+                          onChange={(val) => handleRatingChange(sup.id, 'quality', val)}
+                          styles={{
+                            thumb: { borderWidth: 1, borderColor: getScoreColor(ratings.quality), backgroundColor: getScoreColor(ratings.quality) },
+                            track: { backgroundColor: '#e9ecef' },
+                            bar: { backgroundColor: getScoreColor(ratings.quality) },
+                          }}
+                        />
+                      </div>
+
+                      {/* Accuracy Slider */}
+                      <div style={{ marginBottom: 12 }}>
+                        <Group justify="space-between" mb={2}>
+                          <Text size="xxs" fw={700} c="dimmed" style={{ fontFamily: 'var(--ds-font-sans, sans-serif)' }}>DELIVERY ACCURACY (C2)</Text>
+                          <Text size="xxs" fw={800} style={{ fontFamily: 'var(--ds-font-sans, sans-serif)', color: getScoreColor(ratings.accuracy) }}>{ratings.accuracy}/100</Text>
+                        </Group>
+                        <Slider
+                          size="sm"
+                          min={1}
+                          max={100}
+                          value={ratings.accuracy}
+                          onChange={(val) => handleRatingChange(sup.id, 'accuracy', val)}
+                          styles={{
+                            thumb: { borderWidth: 1, borderColor: getScoreColor(ratings.accuracy), backgroundColor: getScoreColor(ratings.accuracy) },
+                            track: { backgroundColor: '#e9ecef' },
+                            bar: { backgroundColor: getScoreColor(ratings.accuracy) },
+                          }}
+                        />
+                      </div>
+
+                      {/* Timeliness Slider */}
+                      <div style={{ marginBottom: 12 }}>
+                        <Group justify="space-between" mb={2}>
+                          <Text size="xxs" fw={700} c="dimmed" style={{ fontFamily: 'var(--ds-font-sans, sans-serif)' }}>DELIVERY TIMELINESS (C3)</Text>
+                          <Text size="xxs" fw={800} style={{ fontFamily: 'var(--ds-font-sans, sans-serif)', color: getScoreColor(ratings.timeliness) }}>{ratings.timeliness}/100</Text>
+                        </Group>
+                        <Slider
+                          size="sm"
+                          min={1}
+                          max={100}
+                          value={ratings.timeliness}
+                          onChange={(val) => handleRatingChange(sup.id, 'timeliness', val)}
+                          styles={{
+                            thumb: { borderWidth: 1, borderColor: getScoreColor(ratings.timeliness), backgroundColor: getScoreColor(ratings.timeliness) },
+                            track: { backgroundColor: '#e9ecef' },
+                            bar: { backgroundColor: getScoreColor(ratings.timeliness) },
+                          }}
+                        />
+                      </div>
+
                       {/* Price Slider */}
                       <div style={{ marginBottom: 12 }}>
                         <Group justify="space-between" mb={2}>
                           <Text size="xxs" fw={700} c="dimmed" style={{ fontFamily: 'var(--ds-font-sans, sans-serif)' }}>PRICE COMPETITIVENESS (C4)</Text>
-                          <Text size="xxs" fw={700} c="blue" style={{ fontFamily: 'var(--ds-font-sans, sans-serif)' }}>{ratings.price}/100</Text>
+                          <Text size="xxs" fw={800} style={{ fontFamily: 'var(--ds-font-sans, sans-serif)', color: getScoreColor(ratings.price) }}>{ratings.price}/100</Text>
                         </Group>
                         <Slider
                           size="sm"
-                          color="blue"
+                          min={1}
+                          max={100}
                           value={ratings.price}
                           onChange={(val) => handleRatingChange(sup.id, 'price', val)}
-                          styles={{ thumb: { borderWidth: 1 } }}
+                          styles={{
+                            thumb: { borderWidth: 1, borderColor: getScoreColor(ratings.price), backgroundColor: getScoreColor(ratings.price) },
+                            track: { backgroundColor: '#e9ecef' },
+                            bar: { backgroundColor: getScoreColor(ratings.price) },
+                          }}
                         />
                       </div>
 
@@ -720,14 +785,19 @@ export default function SupplierEvaluationPage() {
                       <div>
                         <Group justify="space-between" mb={2}>
                           <Text size="xxs" fw={700} c="dimmed" style={{ fontFamily: 'var(--ds-font-sans, sans-serif)' }}>SERVICE RESPONSIVENESS (C5)</Text>
-                          <Text size="xxs" fw={700} c="teal" style={{ fontFamily: 'var(--ds-font-sans, sans-serif)' }}>{ratings.service}/100</Text>
+                          <Text size="xxs" fw={800} style={{ fontFamily: 'var(--ds-font-sans, sans-serif)', color: getScoreColor(ratings.service) }}>{ratings.service}/100</Text>
                         </Group>
                         <Slider
                           size="sm"
-                          color="teal"
+                          min={1}
+                          max={100}
                           value={ratings.service}
                           onChange={(val) => handleRatingChange(sup.id, 'service', val)}
-                          styles={{ thumb: { borderWidth: 1 } }}
+                          styles={{
+                            thumb: { borderWidth: 1, borderColor: getScoreColor(ratings.service), backgroundColor: getScoreColor(ratings.service) },
+                            track: { backgroundColor: '#e9ecef' },
+                            bar: { backgroundColor: getScoreColor(ratings.service) },
+                          }}
                         />
                       </div>
                     </Card>
