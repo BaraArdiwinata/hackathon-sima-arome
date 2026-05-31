@@ -4,6 +4,7 @@ frontend:
     preBuild:
       commands:
         - corepack enable
+        - pnpm config set ignore-scripts false
         - pnpm install
     build:
       commands:
