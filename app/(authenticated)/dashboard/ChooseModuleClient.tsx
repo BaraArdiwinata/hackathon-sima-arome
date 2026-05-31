@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Box, Paper, Stack, Text, Group, ThemeIcon, Button } from '@mantine/core';
+import { Box, Paper, Stack, Text, Group, ThemeIcon, Button, Title } from '@mantine/core';
 import { useRouter } from 'next/navigation';
 import {
   IconShieldLock,
@@ -186,14 +186,39 @@ export default function ChooseModuleClient({
           font-weight: 500;
           text-align: center;
         }
+
+        .module-page-container h1, 
+        .module-page-container h2, 
+        .module-page-container h3, 
+        .module-page-container h4, 
+        .module-page-container .mantine-Title-root {
+          font-family: var(--ds-font-subheader, 'Montserrat', sans-serif) !important;
+        }
       `}</style>
 
       <Box className="module-page-container">
         {/* Header Bar */}
-        <Box className="header-welcome-bar">
+        <Box className="header-welcome-bar" style={{ position: 'relative' }}>
           <h2 className="header-welcome-text">
             WELCOME BACK, {displayName}!
           </h2>
+          <Button
+            variant="white"
+            color="red"
+            size="sm"
+            leftSection={<IconLogout size={18} />}
+            onClick={handleLogout}
+            style={{
+              position: 'absolute',
+              right: '24px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              fontFamily: "var(--ds-font-sans, 'Inter', sans-serif)",
+              fontWeight: 600,
+            }}
+          >
+            Logout
+          </Button>
         </Box>
 
         {/* Content Body */}
@@ -210,7 +235,7 @@ export default function ChooseModuleClient({
             </Text>
           </Stack>
 
-          {/* Dynamic Greeting & Logout */}
+          {/* Dynamic Greeting & Info */}
           <Stack align="center" gap="xs" style={{ zIndex: 10 }}>
             <Text
               style={{
@@ -223,23 +248,6 @@ export default function ChooseModuleClient({
             >
               Welcome back, {displayName} | <span style={{ color: 'var(--ds-primary-700, #143c26)' }}>{roleName}</span>
             </Text>
-            <Button
-              variant="subtle"
-              color="red"
-              leftSection={<IconLogout size={16} />}
-              onClick={handleLogout}
-              styles={{
-                root: {
-                  fontFamily: "var(--ds-font-sans, 'Inter', sans-serif)",
-                  fontWeight: 600,
-                  fontSize: '0.85rem',
-                  padding: '4px 12px',
-                  height: 'auto',
-                }
-              }}
-            >
-              Logout
-            </Button>
           </Stack>
 
           {/* White Card Container */}
@@ -260,23 +268,20 @@ export default function ChooseModuleClient({
           >
             {/* Title Banner */}
             <Stack align="center" gap="xs" mb="xl">
-              <Box
+              <Title
+                order={2}
+                ff="var(--ds-font-subheader, 'Montserrat', sans-serif)"
                 style={{
-                  backgroundColor: 'var(--ds-primary, #1e5b3a)',
-                  color: 'white',
-                  borderRadius: '9999px',
-                  padding: '10px 40px',
-                  fontWeight: 'bold',
-                  fontSize: '1.4rem',
+                  color: 'var(--ds-primary, #1e5b3a)',
+                  fontFamily: "var(--ds-font-subheader, 'Montserrat', sans-serif)",
+                  fontWeight: 800,
+                  fontSize: '1.6rem',
                   textAlign: 'center',
-                  fontFamily: 'var(--ds-font-subheader, sans-serif)',
-                  boxShadow: '0 4px 10px rgba(30, 91, 58, 0.2)',
-                  width: 'fit-content',
                 }}
               >
                 Choose Your Module
-              </Box>
-              <Text size="sm" c="dimmed" ta="center" style={{ fontFamily: 'var(--ds-font-sans, sans-serif)', fontWeight: 500 }}>
+              </Title>
+              <Text size="sm" c="dimmed" ta="center" style={{ fontFamily: "var(--ds-font-sans, 'Inter', sans-serif)", fontWeight: 500 }}>
                 Please select the workspace you'd like to access.
               </Text>
             </Stack>
