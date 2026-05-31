@@ -71,10 +71,11 @@ export default function ProductStockDetailPage({ params }: { params: Promise<{ i
       setStock(stockObj);
 
       // 2. Fetch corresponding product and warehouse metadata
+      const smFilter = encodeURIComponent(JSON.stringify({ product_stock_id: { _eq: id } }));
       const [prodRes, whRes, smRes] = await Promise.all([
         fetch(`/api/items/products/${stockObj.product_id}`),
         fetch(`/api/items/warehouses/${stockObj.warehouse_id}`),
-        fetch(`/api/items/stock_movements?product_stock_id=${id}`),
+        fetch(`/api/items/stock_movements?filter=${smFilter}`),
       ]);
 
       if (prodRes.ok) {

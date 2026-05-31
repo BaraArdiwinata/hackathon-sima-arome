@@ -50,12 +50,6 @@ export default function RawMaterialDetailPage({ params }: { params: Promise<{ id
   const [qcRecord, setQcRecord] = useState<QualityControl | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // QC inspection form
-  const [qcModalOpened, setQcModalOpened] = useState(false);
-  const [qcDecision, setQcDecision] = useState<'PASSED' | 'FAILED' | null>(null);
-  const [qcNotes, setQcNotes] = useState('');
-  const [submitting, setSubmitting] = useState(false);
-
   const fetchStockDetails = async () => {
     try {
       setLoading(true);
@@ -76,14 +70,16 @@ export default function RawMaterialDetailPage({ params }: { params: Promise<{ id
       }
 
       // Fetch stock movement history
-      const smRes = await fetch(`/api/items/stock_movements?raw_material_id=${id}`);
+      const smFilter = encodeURIComponent(JSON.stringify({ raw_material_id: { _eq: id } }));
+      const smRes = await fetch(`/api/items/stock_movements?filter=${smFilter}`);
       if (smRes.ok) {
         const smJson = await smRes.json();
         setMovements(Array.isArray(smJson.data) ? smJson.data : (Array.isArray(smJson) ? smJson : []));
       }
 
       // Fetch quality control inspection if exists
-      const qcRes = await fetch(`/api/items/quality_control?raw_material_id=${id}`);
+      const qcFilter = encodeURIComponent(JSON.stringify({ raw_material_id: { _eq: id } }));
+      const qcRes = await fetch(`/api/items/quality_control?filter=${qcFilter}`);
       if (qcRes.ok) {
         const qcJson = await qcRes.json();
         const qcList = Array.isArray(qcJson.data) ? qcJson.data : (Array.isArray(qcJson) ? qcJson : []);
@@ -103,93 +99,7 @@ export default function RawMaterialDetailPage({ params }: { params: Promise<{ id
     fetchStockDetails();
   }, [id]);
 
-  // Handle QC Inspection Decisions
-  const handleQcSubmit = async () => {
-    if (!material || !qcDecision) return;
-    try {
-      setSubmitting(true);
 
-      const targetStatus = qcDecision === 'PASSED' ? 'QC_ACCEPTED' : 'QC_REJECTED';
-      
-      // 1. Update status on Raw Materials table
-      const matUpdate = await fetch(`/api/items/raw_materials/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          status: targetStatus,
-          updated_at: new Date().toISOString(),
-        }),
-      });
-
-      if (!matUpdate.ok) throw new Error('Failed to update material QC status');
-
-      // 2. Insert record into Quality Control table
-      const qcResponse = await fetch('/api/items/quality_control', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          raw_material_id: id,
-          checked_by: material.received_by, // using the initial receiver as reviewer
-          qc_status: qcDecision,
-          qc_notes: qcNotes.trim() || `Material passed standard QC testing.`,
-          created_at: new Date().toISOString(),
-        }),
-      });
-
-      if (!qcResponse.ok) throw new Error('Failed to save QC record');
-
-      // 3. Log stock movement for the QC Adjustment
-      const movementResponse = await fetch('/api/items/stock_movements', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          raw_material_id: id,
-          activity_type: 'STOCK_ADJUSTMENT',
-          quantity: Number(material.weight_kg),
-          description: `Quality Control (QC) completed. Result: ${qcDecision === 'PASSED' ? 'PASSED (QC_ACCEPTED)' : 'REJECTED (QC_REJECTED)'}. Notes: ${qcNotes.trim()}`,
-          created_at: new Date().toISOString(),
-          created_by: material.received_by,
-        }),
-      });
-
-      // 4. Create Audit Trail
-      await fetch('/api/items/audit_trails', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'Stock Status Updated',
-          target_table: 'raw_materials',
-          record_id: id,
-          new_data: JSON.stringify({ status: targetStatus, qc: qcDecision }),
-        }),
-      });
-
-      notifications.show({
-        title: 'QC Completed',
-        message: `QC inspection for Batch ${material.batch_code} has been successfully recorded!`,
-        color: qcDecision === 'PASSED' ? 'teal' : 'red',
-      });
-
-      setQcModalOpened(false);
-      setQcNotes('');
-      fetchStockDetails();
-    } catch (err) {
-      console.error(err);
-      notifications.show({
-        title: 'Error',
-        message: 'Failed to update QC status. Please check your data connection.',
-        color: 'red',
-      });
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const openQcModal = (decision: 'PASSED' | 'FAILED') => {
-    setQcDecision(decision);
-    setQcNotes(decision === 'PASSED' ? 'Material passed organoleptic aroma and density testing.' : 'Material has aroma defects / liquid contamination.');
-    setQcModalOpened(true);
-  };
 
   if (loading) {
     return (
@@ -425,29 +335,7 @@ export default function RawMaterialDetailPage({ params }: { params: Promise<{ id
                 </Timeline.Item>
               </Timeline>
 
-              {/* QC Interactive Action Buttons */}
-              {material.status === 'PENDING_QC' && (
-                <Stack mt="md" gap="xs">
-                  <Divider label="QC Inspection Decision Actions" labelPosition="center" />
-                  <Group grow>
-                    <Button
-                      leftSection={<IconCheck size={16} />}
-                      color="teal"
-                      onClick={() => openQcModal('PASSED')}
-                    >
-                      Pass QC (Approve)
-                    </Button>
-                    <Button
-                      leftSection={<IconX size={16} />}
-                      color="red"
-                      variant="outline"
-                      onClick={() => openQcModal('FAILED')}
-                    >
-                      Reject QC
-                    </Button>
-                  </Group>
-                </Stack>
-              )}
+
             </Stack>
           </Paper>
         </SimpleGrid>
@@ -511,46 +399,6 @@ export default function RawMaterialDetailPage({ params }: { params: Promise<{ id
         </Paper>
       </Stack>
 
-      {/* QC ACTION DECISION MODAL */}
-      <Modal
-        opened={qcModalOpened}
-        onClose={() => setQcModalOpened(false)}
-        title={
-          <Title order={3} size="h4" c={qcDecision === 'PASSED' ? 'teal' : 'red'}>
-            {qcDecision === 'PASSED' ? 'Confirm QC Pass' : 'Confirm QC Reject'}
-          </Title>
-        }
-        centered
-        radius="md"
-      >
-        <Stack gap="md">
-          <Text size="sm">
-            You are about to complete the quality control inspection for batch <strong>{material.batch_code}</strong> ({material.material_name}).
-          </Text>
-
-          <Textarea
-            label="QC Inspection Notes"
-            placeholder="Write detailed inspection results for aroma, density, or visual defects..."
-            required
-            minRows={3}
-            value={qcNotes}
-            onChange={(e) => setQcNotes(e.currentTarget.value)}
-          />
-
-          <Group justify="flex-end" mt="md">
-            <Button variant="outline" color="gray" onClick={() => setQcModalOpened(false)}>
-              Cancel
-            </Button>
-            <Button
-              color={qcDecision === 'PASSED' ? 'teal' : 'red'}
-              onClick={handleQcSubmit}
-              loading={submitting}
-            >
-              Save QC Decision
-            </Button>
-          </Group>
-        </Stack>
-      </Modal>
     </Container>
   );
 }
